@@ -1,0 +1,56 @@
+modules = ["nodejs-20", "postgresql-16"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "DB Push"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "DB Seed"
+
+[[workflows.workflow]]
+name = "Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install && npx expo start --web --port 5000"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "DB Push"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx ts-node server/dbPush.ts"
+
+[[workflows.workflow]]
+name = "DB Seed"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx ts-node server/seed.ts"
+
+[deployment]
+run = ["sh", "-c", "npm install && npx expo start --web --port 5000"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
